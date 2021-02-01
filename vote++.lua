@@ -454,7 +454,7 @@ function this.callvote(clientNum, command)
 
 	end
 
-	-- Check result in the next frame.
+	-- Leave it on for a while, that's how game does it.
 	this.dirty = false
 
 	-- Broadcast.
@@ -645,6 +645,7 @@ function this.vote(clientNum, answer)
 
 	end
 
+	-- Check result in the next frame.
 	this.dirty                 = true
 	this.info.voted[clientNum] = true
 
