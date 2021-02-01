@@ -4,9 +4,9 @@ This is a Lua module for Enemy Territory - Wolfenstein server introducing extend
 
 ## Usage
 
-1) Put `vote++.lua` in `etpro` folder.
-2) Create an empty `vote++.config.lua` file (that's where the configuration goes).
-3) Append `vote++.lua` to `lua_modules` cvar.
+1. Put `vote++.lua` in `etpro` folder.
+2. Create an empty `vote++.config.lua` file (that's where the configuration goes).
+3. Append `vote++.lua` to `lua_modules` cvar.
 
 ## Configuration
 
