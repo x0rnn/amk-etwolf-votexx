@@ -131,7 +131,7 @@ function Vote:new(command)
 
 	local id = string.lower(string.sub(command, s, e))
 
-	if id == "getn" then
+	if id == "n" then
 		error(string.format("%s: Vote:new() reserved command name", MOD_NAME))
 	end
 
@@ -241,8 +241,7 @@ function this.callvote_f(clientNum)
 
 	local command = string.lower(et.trap_Argv(1))
 
-	-- Lua internal function.
-	if command == "getn" then
+	if command == "n" then
 		return 0
 	end
 
@@ -280,8 +279,7 @@ function this.referee_f(clientNum)
 
 	local command = string.lower(et.trap_Argv(1))
 
-	-- Lua internal function.
-	if command == "getn" then
+	if command == "n" then
 		return 0
 	end
 
@@ -354,8 +352,7 @@ function this.ref_s()
 
 	local command = string.lower(et.trap_Argv(1))
 
-	-- Lua internal function.
-	if command == "getn" then
+	if command == "n" then
 		return 0
 	end
 
@@ -823,7 +820,7 @@ end
 --- Masks a command, internal or virtual.
 function this.mask(command, mask)
 
-	if command == "getn" then
+	if command == "n" then
 		error(string.format("%s: reserved command name", MOD_NAME))
 	end
 
