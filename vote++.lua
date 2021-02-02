@@ -64,6 +64,7 @@ local ENT_PERS_NETNAME    = "pers.netname"
 local ENT_PERS_VOTE_COUNT = "pers.voteCount"
 local ENT_INUSE           = "inuse"
 local GS_PLAYING          = 0
+local GS_INTERMISSION     = 3
 local CONFIG_NAME         = "vote++.config.lua"
 
 -- vote types
@@ -238,6 +239,11 @@ function this.callvote_f(clientNum)
 		return 0
 	end
 
+	-- Round end.
+	if tonumber(et.trap_Cvar_Get("gamestate")) == GS_INTERMISSION then
+		return 0
+	end
+
 	-- TODO: List commands.
 	if et.trap_Argc() < 2 then
 		return 0
@@ -310,6 +316,13 @@ function this.vote_f(clientNum)
 		return 1 -- Game would say there's no vote in progress.
 	end
 
+	-- Round end.
+	local gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
+
+	if gamestate == GS_INTERMISSION then
+		return 0
+	end
+
 	-- Some votes are actually control commands for fireteam related stuff.
 	local endTimes = {
 		"applicationEndTime",
@@ -320,7 +333,6 @@ function this.vote_f(clientNum)
 		"autofireteamJoinEndTime",
 	}
 
-	local gamestate        = tonumber(et.trap_Cvar_Get("gamestate"))
 	local g_complaintLimit = tonumber(et.trap_Cvar_Get("g_complaintlimit"))
 
 	if et.gentity_get(clientNum, "pers.complaintEndTime") > this.time and gamestate == GS_PLAYING and g_complaintLimit then
@@ -694,6 +706,10 @@ end
 --- Passes/fails the poll if enough of votes is casted.
 function this.checkVote()
 
+	if tonumber(et.trap_Cvar_Get("gamestate")) == GS_INTERMISSION then
+		return
+	end
+
 	if this.time - this.info.time >= VOTE_TIME then
 		this.fail()
 		return
@@ -981,7 +997,7 @@ function et_RunFrame(levelTime)
 	end
 
 	if this.callbacks.et_RunFrame ~= nil then
-		-- this.callbacks.et_RunFrame(levelTime)
+		this.callbacks.et_RunFrame(levelTime)
 	end
 
 end
