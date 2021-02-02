@@ -63,6 +63,7 @@ local ENT_SESSION_REF     = "sess.referee"
 local ENT_PERS_NETNAME    = "pers.netname"
 local ENT_PERS_VOTE_COUNT = "pers.voteCount"
 local ENT_INUSE           = "inuse"
+local GS_PLAYING          = 0
 local CONFIG_NAME         = "vote++.config.lua"
 
 -- vote types
@@ -307,6 +308,37 @@ function this.vote_f(clientNum)
 	if tonumber(et.gentity_get(clientNum, ENT_SESSION_TEAM)) == TEAM_SPECTATOR then
 		et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, MSG_VOTE_SPECTATOR))
 		return 1 -- Game would say there's no vote in progress.
+	end
+
+	-- Some votes are actually control commands for fireteam related stuff.
+	local endTimes = {
+		"applicationEndTime",
+		"invitationEndTime",
+		"propositionEndTime",
+		"autofireteamEndTime",
+		"autofireteamCreateEndTime",
+		"autofireteamJoinEndTime",
+	}
+
+	local gamestate        = tonumber(et.trap_Cvar_Get("gamestate"))
+	local g_complaintLimit = tonumber(et.trap_Cvar_Get("g_complaintlimit"))
+
+	if et.gentity_get(clientNum, "pers.complaintEndTime") > this.time and gamestate == GS_PLAYING and g_complaintLimit then
+		return 0
+	end
+
+	local controlVote = false
+
+	table.foreach(endTimes, function(_, name)
+
+		if et.gentity_get(clientNum, "pers." .. name) > this.time then
+			controlVote = true
+		end
+
+	end)
+
+	if controlVote then
+		return 0
 	end
 
 	-- Game considers anything but "yes" to be a "no".
