@@ -12,6 +12,8 @@ This is a Lua module for Enemy Territory - Wolfenstein server introducing extend
 
 All the configuration belongs to `vote++.config.lua`.
 
+Apart from defining commands, you can define any ET callback (like `et_RunFrame`) and use any API (`et.*` and stdlib).
+
 ### Defining vote commands
 
 ~~~lua

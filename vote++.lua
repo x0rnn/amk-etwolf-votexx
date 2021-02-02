@@ -109,6 +109,9 @@ local this = {
 	disabled   = {}, -- command: true
 	maxClients = nil,
 
+	-- ET callbacks
+	callbacks = {},
+
 }
 
 --
@@ -867,7 +870,7 @@ function this.configure()
 
 		table.foreach(_G, function(n, v)
 
-			if n ~= "this" then
+			if n ~= "this" and string.sub(n, 1, 3) ~= "et_" then
 				scope[n] = v
 			end
 
@@ -875,6 +878,41 @@ function this.configure()
 
 		setfenv(callback, scope)
 		callback()
+
+		local functions = {
+			"et_InitGame",
+			"et_ShutdownGame",
+			"et_RunFrame",
+			"et_Quit",
+			"et_ClientConnect",
+			"et_ClientDisconnect",
+			"et_ClientBegin",
+			"et_ClientUserinfoChanged",
+			"et_ClientSpawn",
+			"et_ClientCommand",
+			"et_ConsoleCommand",
+			"et_UpgradeSkill",
+			"et_SetPlayerSkill",
+			"et_IPCReceive",
+			"et_Print",
+			"et_Obituary",
+		}
+
+		-- Export callbacks we don't use and store the overlapping ones.
+		-- Mod doesn't have to make unnecessary calls that way.
+		table.foreach(functions, function(_, func)
+
+			if scope[func] ~= nil then
+
+				if _G[func] ~= nil then
+					this.callbacks[func] = scope[func]
+				else
+					_G[func] = scope[func]
+				end
+
+			end
+
+		end)
 
 	end)
 
@@ -890,8 +928,30 @@ end
 
 --- Module registration.
 function et_InitGame(levelTime, randomSeed, restart)
+
 	et.RegisterModname(MOD_NAME .. " " .. et.FindSelf())
 	this.configure()
+
+	if this.callbacks.et_InitGame ~= nil then
+		this.callbacks.et_InitGame(levelTime, randomSeed, restart)
+	end
+
+end
+
+--- Handles timing.
+function et_RunFrame(levelTime)
+
+	this.time = levelTime
+
+	if this.info.time and (this.time - this.info.time >= VOTE_TIME_MIN and math.mod(this.time, VOTE_TIME_MIN) == 0 or this.dirty) then
+		this.dirty = false
+		this.checkVote()
+	end
+
+	if this.callbacks.et_RunFrame ~= nil then
+		-- this.callbacks.et_RunFrame(levelTime)
+	end
+
 end
 
 --- Handles "callvote", "ref" and "vote" commands.
@@ -905,6 +965,10 @@ function et_ClientCommand(clientNum, command)
 		return this.referee_f(clientNum)
 	elseif command == CMD_VOTE then
 		return this.vote_f(clientNum)
+	end
+
+	if this.callbacks.et_ClientCommand ~= nil then
+		return this.callbacks.et_ClientCommand(clientNum, command)
 	end
 
 	return 0
@@ -924,19 +988,11 @@ function et_ConsoleCommand()
 		return this.cancelvote_s()
 	end
 
-	return 0
-
-end
-
---- Handles timing.
-function et_RunFrame(levelTime)
-
-	this.time = levelTime
-
-	if this.info.time and (this.time - this.info.time >= VOTE_TIME_MIN and math.mod(this.time, VOTE_TIME_MIN) == 0 or this.dirty) then
-		this.dirty = false
-		this.checkVote()
+	if this.callbacks.et_ConsoleCommand ~= nil then
+		return this.callbacks.et_ConsoleCommand()
 	end
+
+	return 0
 
 end
 
