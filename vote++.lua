@@ -117,31 +117,31 @@ local this = {
 
 	-- Native votes (for command list)
 	standards = {
-		{"comp",           nil,          "Loads standard competition settings for the current mode", "vote_allow_comp"          },
-		{"gametype",       "<value>",    "Changes the current gametype",                             "vote_allow_gametype"      },
-		{"kick",           "<player>",   "Attempts to kick player from server",                      "vote_allow_kick"          },
-		{"mute",           "<player>",   "Removes the chat capabilities of a player",                "vote_allow_muting"        },
-		{"unmute",         "<player>",   "Restores the chat capabilities of a player",               "vote_allow_muting"        },
-		{"map",            "<map>",      "Votes for a new map to be loaded",                         "vote_allow_map"           },
-		{"campaign",       "<campaign>", "Votes for a new campaign to be loaded",                    "vote_allow_map"           },
-		{"maprestart",     nil,          "Restarts the current map in progress",                     nil                        },
-		{"matchreset",     nil,          "Resets the entire match",                                  "vote_allow_matchreset"    },
-		{"mutespecs",      "<0|1>",      "Mutes in-game spectator chat",                             "vote_allow_mutespecs"     },
-		{"nextmap",        nil,          "Loads the next map or campaign in the map queue",          "vote_allow_nextmap"       },
-		{"pub",            nil,          "Loads standard public settings for the current mode",      "vote_allow_pub"           },
-		{"referee",        "<player>",   "Elects a player to have admin abilities",                  "vote_allow_referee"       },
-		{"shuffleteamsxp", nil,          "Randomly place players on each team, based on XP",         "vote_allow_shuffleteamsxp"},
-		{"startmatch",     nil,          'Sets all players to XreadyX status to start the match',    nil                        },
-		{"swapteams",      nil,          "Switch the players on each team",                          "vote_allow_swapteams"     },
-		{"friendlyfire",   "<0|1>",      "Toggles ability to hurt teammates",                        "vote_allow_friendlyfire"  },
-		{"timelimit",      "<value>",    "Changes the current timelimit",                            "vote_allow_timelimit"     },
-		{"unreferee",      "<player>",   "Elects a player to have admin abilities removed",          "vote_allow_referee"       },
-		{"warmupdamage",   "<0|1|2>",    "Specifies if players can inflict damage during warmup",    "vote_allow_warmupdamage"  },
-		{"antilag",        "<0|1>",      "Toggles Anit-Lag on the server",                           "vote_allow_antilag"       },
-		{"balancedteams",  "<0|1>",      "Toggles team balance forcing",                             "vote_allow_balancedteams" },
-		{"surrender",      nil,          "Forfeits the match in favor of the defending team",        "vote_allow_surrender"     },
-		{"cointoss",       nil,          "Flips a coin",                                             "vote_allow_cointoss"      },
-		{"config",         "<config>",   "Loads an ETPro configuration",                             "vote_alow_config"         },
+		{"comp",           "Loads standard competition settings for the current mode", "vote_allow_comp"          },
+		{"gametype",       "Changes the current gametype",                             "vote_allow_gametype"      },
+		{"kick",           "Attempts to kick player from server",                      "vote_allow_kick"          },
+		{"mute",           "Removes the chat capabilities of a player",                "vote_allow_muting"        },
+		{"unmute",         "Restores the chat capabilities of a player",               "vote_allow_muting"        },
+		{"map",            "Votes for a new map to be loaded",                         "vote_allow_map"           },
+		{"campaign",       "Votes for a new campaign to be loaded",                    "vote_allow_map"           },
+		{"maprestart",     "Restarts the current map in progress",                     nil                        },
+		{"matchreset",     "Resets the entire match",                                  "vote_allow_matchreset"    },
+		{"mutespecs",      "Mutes in-game spectator chat",                             "vote_allow_mutespecs"     },
+		{"nextmap",        "Loads the next map or campaign in the map queue",          "vote_allow_nextmap"       },
+		{"pub",            "Loads standard public settings for the current mode",      "vote_allow_pub"           },
+		{"referee",        "Elects a player to have admin abilities",                  "vote_allow_referee"       },
+		{"shuffleteamsxp", "Randomly place players on each team, based on XP",         "vote_allow_shuffleteamsxp"},
+		{"startmatch",     'Sets all players to XreadyX status to start the match',    nil                        },
+		{"swapteams",      "Switch the players on each team",                          "vote_allow_swapteams"     },
+		{"friendlyfire",   "Toggles ability to hurt teammates",                        "vote_allow_friendlyfire"  },
+		{"timelimit",      "Changes the current timelimit",                            "vote_allow_timelimit"     },
+		{"unreferee",      "Elects a player to have admin abilities removed",          "vote_allow_referee"       },
+		{"warmupdamage",   "Specifies if players can inflict damage during warmup",    "vote_allow_warmupdamage"  },
+		{"antilag",        "Toggles Anit-Lag on the server",                           "vote_allow_antilag"       },
+		{"balancedteams",  "Toggles team balance forcing",                             "vote_allow_balancedteams" },
+		{"surrender",      "Forfeits the match in favor of the defending team",        "vote_allow_surrender"     },
+		{"cointoss",       "Flips a coin",                                             "vote_allow_cointoss"      },
+		{"config",         "Loads an ETPro configuration",                             "vote_alow_config"         },
 	},
 
 }
@@ -483,9 +483,9 @@ function this.help(clientNum)
 
 		local enabled = nil
 
-		if standard[4] ~= nil then
+		if standard[3] ~= nil then
 
-			local cvar = et.trap_Cvar_Get(standard[4])
+			local cvar = et.trap_Cvar_Get(standard[3])
 
 			-- vote_allow_config is a list
 			if cvar == "" or tonumber(cvar) == 0 then
@@ -495,26 +495,20 @@ function this.help(clientNum)
 		end
 
 		local cmd = {
-			id          = standard[1],
 			command     = standard[1],
-			description = standard[3],
+			description = standard[2],
 			enabled     = enabled,
 		}
 
-		if standard[2] ~= nil then
-			cmd.command = string.format("%s %s", standard[1], standard[2])
-		end
-
 		table.insert(commands, cmd)
-		indexes[cmd.id] = table.getn(commands)
+		indexes[cmd.command] = table.getn(commands)
 
 	end)
 
 	table.foreach(this.commands, function(_, command)
 
 		local cmd = {
-			id          = command.id,
-			command     = command.command,
+			command     = command.id,
 			description = command.vDescription,
 			enabled     = nil,
 		}
@@ -530,7 +524,7 @@ function this.help(clientNum)
 	table.foreach(commands, function(_, command)
 
 		if command.enabled == nil then
-			command.enabled = not (this.disabled[command.id] or this.disabled['*'] and this.disabled[command.id] ~= false)
+			command.enabled = not (this.disabled[command.command] or this.disabled['*'] and this.disabled[command.command] ~= false)
 		end
 
 	end)
@@ -538,10 +532,10 @@ function this.help(clientNum)
 	table.sort(commands, function(a, b)
 
 		-- Ain't there a better way?
-		for i = 1, math.min(string.len(a.id), string.len(b.id)) do
+		for i = 1, math.min(string.len(a.command), string.len(b.command)) do
 
-			local ba = string.byte(string.sub(a.id, i, i))
-			local bb = string.byte(string.sub(b.id, i, i))
+			local ba = string.byte(string.sub(a.command, i, i))
+			local bb = string.byte(string.sub(b.command, i, i))
 
 			if ba < bb then
 				return true
@@ -565,7 +559,7 @@ function this.help(clientNum)
 	table.foreach(commands, function(_, command)
 
 		if command.enabled ~= false then
-			table.insert(rows, {command.id, command.description})
+			table.insert(rows, {command.command, command.description})
 		end
 
 	end)
