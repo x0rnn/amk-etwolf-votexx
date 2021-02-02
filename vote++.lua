@@ -110,9 +110,39 @@ local this = {
 	commands   = {}, -- vote handlers
 	disabled   = {}, -- command: true
 	maxClients = nil,
+	betterHelp = true,
 
 	-- ET callbacks
 	callbacks = {},
+
+	-- Native votes (for command list)
+	standards = {
+		{"comp",           nil,          "Loads standard competition settings for the current mode", "vote_allow_comp"          },
+		{"gametype",       "<value>",    "Changes the current gametype",                             "vote_allow_gametype"      },
+		{"kick",           "<player>",   "Attempts to kick player from server",                      "vote_allow_kick"          },
+		{"mute",           "<player>",   "Removes the chat capabilities of a player",                "vote_allow_muting"        },
+		{"unmute",         "<player>",   "Restores the chat capabilities of a player",               "vote_allow_muting"        },
+		{"map",            "<map>",      "Votes for a new map to be loaded",                         "vote_allow_map"           },
+		{"campaign",       "<campaign>", "Votes for a new campaign to be loaded",                    "vote_allow_map"           },
+		{"maprestart",     nil,          "Restarts the current map in progress",                     nil                        },
+		{"matchreset",     nil,          "Resets the entire match",                                  "vote_allow_matchreset"    },
+		{"mutespecs",      "<0|1>",      "Mutes in-game spectator chat",                             "vote_allow_mutespecs"     },
+		{"nextmap",        nil,          "Loads the next map or campaign in the map queue",          "vote_allow_nextmap"       },
+		{"pub",            nil,          "Loads standard public settings for the current mode",      "vote_allow_pub"           },
+		{"referee",        "<player>",   "Elects a player to have admin abilities",                  "vote_allow_referee"       },
+		{"shuffleteamsxp", nil,          "Randomly place players on each team, based on XP",         "vote_allow_shuffleteamsxp"},
+		{"startmatch",     nil,          'Sets all players to XreadyX status to start the match',    nil                        },
+		{"swapteams",      nil,          "Switch the players on each team",                          "vote_allow_swapteams"     },
+		{"friendlyfire",   "<0|1>",      "Toggles ability to hurt teammates",                        "vote_allow_friendlyfire"  },
+		{"timelimit",      "<value>",    "Changes the current timelimit",                            "vote_allow_timelimit"     },
+		{"unreferee",      "<player>",   "Elects a player to have admin abilities removed",          "vote_allow_referee"       },
+		{"warmupdamage",   "<0|1|2>",    "Specifies if players can inflict damage during warmup",    "vote_allow_warmupdamage"  },
+		{"antilag",        "<0|1>",      "Toggles Anit-Lag on the server",                           "vote_allow_antilag"       },
+		{"balancedteams",  "<0|1>",      "Toggles team balance forcing",                             "vote_allow_balancedteams" },
+		{"surrender",      nil,          "Forfeits the match in favor of the defending team",        "vote_allow_surrender"     },
+		{"cointoss",       nil,          "Flips a coin",                                             "vote_allow_cointoss"      },
+		{"config",         "<config>",   "Loads an ETPro configuration",                             "vote_alow_config"         },
+	},
 
 }
 
@@ -244,9 +274,9 @@ function this.callvote_f(clientNum)
 		return 0
 	end
 
-	-- TODO: List commands.
-	if et.trap_Argc() < 2 then
-		return 0
+	if et.trap_Argc() < 2 and this.betterHelp then
+		this.help(clientNum)
+		return 1
 	end
 
 	local command = string.lower(et.trap_Argv(1))
@@ -282,9 +312,9 @@ function this.referee_f(clientNum)
 		return 1
 	end
 
-	-- TODO: List commands.
-	if et.trap_Argc() < 2 then
-		return 0
+	if et.trap_Argc() < 2 and this.betterHelp then
+		this.help(clientNum)
+		return 1
 	end
 
 	local command = string.lower(et.trap_Argv(1))
@@ -392,9 +422,9 @@ function this.ref_s()
 		return 0
 	end
 
-	-- TODO: List commands.
-	if et.trap_Argc() < 2 then
-		return 0
+	if et.trap_Argc() < 2 and this.betterHelp then
+		this.help(nil)
+		return 1
 	end
 
 	local command = string.lower(et.trap_Argv(1))
@@ -426,14 +456,213 @@ end
 
 --- Prints usage.
 function this.usage(clientNum, command)
-	
-	local usage = string.format("\nUsage: ^3\\%s %s^7", et.trap_Argv(0), command.command)
 
-	if command.vDescription ~= nil then
+	local name = "?"
+
+	if command ~= nil then
+		name = command.command
+	end
+
+	local usage = string.format("\nUsage: ^3\\%s %s^7", et.trap_Argv(0), name)
+
+	if command and command.vDescription ~= nil then
 		usage = string.format("%s\n  %s", usage, command.vDescription)
 	end
 
 	this.error(clientNum, usage .. "\n")
+
+end
+
+--- Generates a help text (list of commands).
+function this.help(clientNum)
+
+	local commands = {}
+	local indexes  = {}
+
+	table.foreach(this.standards, function(_, standard)
+
+		local enabled = nil
+
+		if standard[4] ~= nil then
+
+			local cvar = et.trap_Cvar_Get(standard[4])
+
+			-- vote_allow_config is a list
+			if cvar == "" or tonumber(cvar) == 0 then
+				enabled = false
+			end
+
+		end
+
+		local cmd = {
+			id          = standard[1],
+			command     = standard[1],
+			description = standard[3],
+			enabled     = enabled,
+		}
+
+		if standard[2] ~= nil then
+			cmd.command = string.format("%s %s", standard[1], standard[2])
+		end
+
+		table.insert(commands, cmd)
+		indexes[cmd.id] = table.getn(commands)
+
+	end)
+
+	table.foreach(this.commands, function(_, command)
+
+		local cmd = {
+			id          = command.id,
+			command     = command.command,
+			description = command.vDescription,
+			enabled     = nil,
+		}
+
+		if indexes[command.id] ~= nil then
+			commands[indexes[command.id]] = cmd
+		else
+			table.insert(commands, cmd)
+		end
+
+	end)
+
+	table.foreach(commands, function(_, command)
+
+		if command.enabled == nil then
+			command.enabled = not (this.disabled[command.id] or this.disabled['*'] and this.disabled[command.id] ~= false)
+		end
+
+	end)
+
+	table.sort(commands, function(a, b)
+
+		-- Ain't there a better way?
+		for i = 1, math.min(string.len(a.id), string.len(b.id)) do
+
+			local ba = string.byte(string.sub(a.id, i, i))
+			local bb = string.byte(string.sub(b.id, i, i))
+
+			if ba < bb then
+				return true
+			elseif ba > bb then
+				return false
+			end
+
+		end
+
+		return false
+
+	end)
+
+	local columns = {
+		{name = "Command"},
+		{name = "Description"},
+	}
+
+	local rows = {}
+
+	table.foreach(commands, function(_, command)
+
+		if command.enabled ~= false then
+			table.insert(rows, {command.id, command.description})
+		end
+
+	end)
+
+	if clientNum ~= nil then
+		et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, string.format("Valid ^3%s^7 commands:\n", et.trap_Argv(0))))
+	else
+		et.G_Print(string.format("Valid ^3%s^7 commands:\n", et.trap_Argv(0)))
+	end
+
+	this.format_table(columns, rows, nil, function(s)
+
+		if clientNum ~= nil then
+			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, s .. "\n"))
+		else
+			et.G_Print(s .. "\n")
+		end
+
+	end)
+
+	this.usage(clientNum, nil)
+
+end
+
+--- Formats table.
+function this.format_table(columns, rows, separator, callback)
+
+	local lens = {}
+
+	table.foreach(columns, function(index, column)
+		lens[index] = string.len(et.Q_CleanStr(column.name))
+	end)
+
+	table.foreach(rows, function(_, row)
+
+		table.foreach(row, function(index, value)
+
+			local len = string.len(et.Q_CleanStr(value))
+
+			if lens[index] < len then
+				lens[index] = len
+			end
+
+		end)
+
+	end)
+
+	local width = 1
+
+	table.foreach(lens, function(_, len)
+		width = width + len + 3 -- 3 = padding around the value and cell separator
+	end)
+
+	-- Header separator
+	callback("^7" .. string.rep('-', width))
+
+	-- Column names
+	local row = "^7|"
+
+	table.foreach(columns, function(index, column)
+		row = row .. " " .. column.name .. string.rep(' ', lens[index] - string.len(et.Q_CleanStr(column.name))) .. " |"
+	end)
+
+	callback(row)
+
+	if table.getn(rows) > 0 then
+
+		-- Data separator
+		callback("^7" .. string.rep('-', width))
+
+		-- Rows
+		table.foreach(rows, function(_, r)
+
+			local row = "^7|"
+
+			table.foreach(r, function(index, value)
+				if columns[index].align == "right" then
+					row = row .. " " .. string.rep(' ', lens[index] - string.len(et.Q_CleanStr(value))) .. value .. " ^7|"
+				else
+					row = row .. " " .. value .. string.rep(' ', lens[index] - string.len(et.Q_CleanStr(value))) .. " ^7|"
+				end
+			end)
+
+			callback(row)
+
+			if separator then
+				callback("^7" .. string.rep('-', width))
+			end
+
+		end)
+
+	end
+
+	-- Bottom line
+	if not separator then
+		callback("^7" .. string.rep('-', width))
+	end
 
 end
 
@@ -877,6 +1106,11 @@ function this.mask(command, mask)
 
 	this.disabled[command] = mask
 
+end
+
+--- Sets a better help.
+function this.setBetterHelp(betterHelp)
+	this.info.betterHelp = betterHelp
 end
 
 --- Loads the configuration.
