@@ -131,7 +131,7 @@ local this = {
 		{"pub",            "Loads standard public settings for the current mode",      "vote_allow_pub"           },
 		{"referee",        "Elects a player to have admin abilities",                  "vote_allow_referee"       },
 		{"shuffleteamsxp", "Randomly place players on each team, based on XP",         "vote_allow_shuffleteamsxp"},
-		{"startmatch",     'Sets all players to XreadyX status to start the match',    nil                        },
+		{"startmatch",     "Sets all players to 'ready' status to start the match",    nil                        },
 		{"swapteams",      "Switch the players on each team",                          "vote_allow_swapteams"     },
 		{"friendlyfire",   "Toggles ability to hurt teammates",                        "vote_allow_friendlyfire"  },
 		{"timelimit",      "Changes the current timelimit",                            "vote_allow_timelimit"     },
