@@ -1,3 +1,4 @@
+-- Puts player to spectator.
 Vote:new("remove <player>")
     :description("Removes player from team")
     :vote(function(player)
@@ -10,3 +11,4 @@ Vote:new("remove <player>")
 
     end)
     :pass("ref remove <player:%d>")
+    :team()
