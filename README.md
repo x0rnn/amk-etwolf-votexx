@@ -62,6 +62,10 @@ Vote:new("kill <player>")
 
 - `:team()`: makes the vote team only - this only works if the `<player>` argument is specified in the constructor
 
+- `:attacker()`: makes the vote only available for attacking team
+
+- `:defender()`: makes the vote only available for defending team
+
 ### Disabling vote commands
 
 You can disable any or all the vote commands, including the built-in ones.

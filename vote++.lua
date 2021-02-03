@@ -10,6 +10,7 @@ local CS_VOTE_TIME   = 6
 local CS_VOTE_STRING = 7
 local CS_VOTE_YES    = 8
 local CS_VOTE_NO     = 9
+local CS_MULTI_INFO  = 13
 
 -- client commands
 local CMD_CALLVOTE      = "callvote"
@@ -65,6 +66,8 @@ local ENT_PERS_VOTE_COUNT = "pers.voteCount"
 local ENT_INUSE           = "inuse"
 local GS_PLAYING          = 0
 local GS_INTERMISSION     = 3
+local SIDE_ATTACKER       = 0
+local SIDE_DEFENDER       = 1
 local CONFIG_NAME         = "vote++.config.lua"
 
 -- vote types
@@ -202,6 +205,18 @@ end
 --- Makes the vote team specific.
 function Vote:team()
 	self.vScope = VOTE_SCOPE_TEAM
+	return self
+end
+
+--- Makes the vote attacker specific.
+function Vote:attacker()
+	self.vSide = SIDE_ATTACKER
+	return self
+end
+
+--- Makes the vote defender specific.
+function Vote:defender()
+	self.vSide = SIDE_DEFENDER
 	return self
 end
 
@@ -682,13 +697,35 @@ function this.callvote(clientNum, command)
 	this.info.caller     = clientNum
 	this.info.callerTeam = tonumber(et.gentity_get(clientNum, ENT_SESSION_TEAM))
 
+	-- Side specific vote.
+	if command.vSide ~= nil then
+
+		local defender = tonumber(et.Info_ValueForKey(et.trap_GetConfigstring(CS_MULTI_INFO), "defender")) + 1
+
+		if not (command.vSide == SIDE_DEFENDER and this.info.callerTeam == defender or command.vSide == SIDE_ATTACKER and this.info.callerTeam ~= defender) then
+
+			local side
+
+			if command.vSide == SIDE_ATTACKER then
+				side = "attacking"
+			else
+				side = "defending"
+			end
+
+			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, string.format("Sorry, ^3%s ^7voting is only possible for %s team.\n", command.id, side)))
+			return
+
+		end
+
+	end
+
 	-- Now we need to call the vote callback.
 	local voteString, errorMessage = this.executeCallback("vote", false, this.info)
 	
 	if voteString == false then
 		
 		if type(errorMessage) == "string" then
-			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, errorMessage))
+			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, errorMessage .. "\n"))
 		end
 		
 		return
