@@ -358,10 +358,17 @@ function this.vote_f(clientNum)
 		return 0
 	end
 
+	local team = tonumber(et.gentity_get(clientNum, ENT_SESSION_TEAM))
+
 	-- Spectator?
-	if tonumber(et.gentity_get(clientNum, ENT_SESSION_TEAM)) == TEAM_SPECTATOR then
+	if team == TEAM_SPECTATOR then
 		et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, MSG_VOTE_SPECTATOR))
 		return 1 -- Game would say there's no vote in progress.
+	end
+
+	-- Team specific.
+	if this.info.handler.vScope == VOTE_SCOPE_TEAM and team ~= this.info.targetTeam then
+		return 0
 	end
 
 	-- Round end.
@@ -703,6 +710,10 @@ function this.callvote(clientNum, command)
 	if command.vScope == VOTE_SCOPE_TEAM and this.info.targetTeam ~= nil and this.info.targetTeam ~= TEAM_SPECTATOR and this.info.targetTeam ~= this.info.callerTeam then
 		this.error(clientNum, MSG_OPPOSING_TEAM_VOTE)
 		return
+	end
+
+	if command.vScope == VOTE_SCOPE_TEAM and this.info.targetTeam == nil then
+		this.info.targetTeam = this.info.callerTeam
 	end
 
 	-- Side specific vote.
