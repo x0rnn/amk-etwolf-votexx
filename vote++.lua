@@ -462,7 +462,7 @@ end
 function this.sanitize(clientNum)
 
 	if string.find(et.ConcatArgs(1), "[;\r\n]") then
-		et.trap_SendServerCommand(clientNum, string.format(FORMAT_CPM, MSG_CALLVOTE_IN_PROGRESS))
+		et.trap_SendServerCommand(clientNum, string.format(FORMAT_CPM, MSG_INVALID_VOTE_STRING))
 		return false
 	end
 
@@ -908,6 +908,10 @@ function this.findClient(clientNum, search)
 
 		end
 
+	end
+
+	if num == nil then
+		this.error(clientNum, string.format(MSG_CLIENT_NOT_FOUND, search))
 	end
 
 	return num
