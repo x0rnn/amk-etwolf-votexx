@@ -48,6 +48,8 @@ local MSG_CLIENT_NOT_FOUND     = "No players matching '%s' found.\n"
 local MSG_AMBIGUOUS_CLIENT     = "Multiple players matching '%s' found.\n"
 local MSG_CLIENT_NOT_ACTIVE    = "Client %d is not active\n"
 local MSG_REFEREE_CHANGE       = "^1** Referee Server Setting Change **\n"
+local MSG_OPPOSING_TEAM_VOTE   = "This vote cannot be called on players on opposing team.\n"
+local MSG_SIDE_TEAM            = "Sorry, ^3%s ^7voting is only possible for %s team.\n"
 
 -- sounds
 local SOUND_BELL    = "sound/misc/vote.wav"
@@ -697,6 +699,12 @@ function this.callvote(clientNum, command)
 	this.info.caller     = clientNum
 	this.info.callerTeam = tonumber(et.gentity_get(clientNum, ENT_SESSION_TEAM))
 
+	-- Validate target team.
+	if command.vScope == VOTE_SCOPE_TEAM and this.info.targetTeam ~= nil and this.info.targetTeam ~= TEAM_SPECTATOR and this.info.targetTeam ~= this.info.callerTeam then
+		this.error(clientNum, MSG_OPPOSING_TEAM_VOTE)
+		return
+	end
+
 	-- Side specific vote.
 	if command.vSide ~= nil then
 
@@ -712,7 +720,7 @@ function this.callvote(clientNum, command)
 				side = "defending"
 			end
 
-			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, string.format("Sorry, ^3%s ^7voting is only possible for %s team.\n", command.id, side)))
+			this.error(clientNum, string.format(MSG_SIDE_TEAM, command.id, side))
 			return
 
 		end
@@ -826,8 +834,9 @@ function this.loadArguments(clientNum, command, context)
 		return false
 	end
 
-	context.arguments = {}
-	context.target    = nil
+	context.arguments  = {}
+	context.target     = nil
+	context.targetTeam = nil
 
 	local ok = true
 
@@ -1104,6 +1113,7 @@ end
 --- Clears the virtual vote.
 function this.clear()
 	this.info.time = nil
+	et.trap_SetConfigstring(CS_VOTE_TIME, tostring(this.time - VOTE_TIME)) -- enforce update
 	et.trap_SetConfigstring(CS_VOTE_TIME, "")
 end
 
