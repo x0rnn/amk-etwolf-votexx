@@ -110,6 +110,7 @@ local this = {
 	commands   = {}, -- vote handlers
 	disabled   = {}, -- command: true
 	maxClients = nil,
+	teams      = {}, -- cno: number
 	betterHelp = true,
 
 	-- ET callbacks
@@ -706,16 +707,20 @@ function this.callvote(clientNum, command)
 	et.trap_SetConfigstring(CS_VOTE_YES,    tostring(this.info.yes))
 	et.trap_SetConfigstring(CS_VOTE_NO,     tostring(this.info.no))
 
-	if command.scope == VOTE_SCOPE_GLOBAL then
+	if command.vScope == VOTE_SCOPE_GLOBAL or this.info.targetTeam == TEAM_SPECTATOR then
 		et.trap_SetConfigstring(CS_VOTE_TIME, tostring(this.info.time))
 	else
 
 		for i = 0, this.maxClients - 1 do
 
+			local team = et.gentity_get(i, ENT_SESSION_TEAM)
+
 			-- Only players in the same team as the caller will see it.
-			if et.gentity_get(i, ENT_SESSION_TEAM) == this.info.targetTeam then
+			if team == this.info.targetTeam then
 				et.trap_SendServerCommand(i, string.format(FORMAT_CS, CS_VOTE_TIME, this.info.time))
 			end
+
+			this.teams[i] = team
 
 		end
 
@@ -957,7 +962,7 @@ function this.checkVote()
 
 		if team == TEAM_AXIS or team == TEAM_ALLIES then
 
-			if this.info.handler.vScope == VOTE_SCOPE_GLOBAL or team == this.info.targetTeam then
+			if this.info.handler.vScope == VOTE_SCOPE_GLOBAL or team == this.info.targetTeam or this.info.targetTeam == TEAM_SPECTATOR then
 				voters = voters + 1
 			end
 
@@ -969,6 +974,66 @@ function this.checkVote()
 		this.pass()
 	elseif this.info.no and this.info.no >= (100 - percents) * voters / 100 then
 		this.fail()
+	end
+
+end
+
+--- Updates config strings when target changes team.
+function this.updateTarget()
+
+	if this.info.target == nil or this.info.handler.vScope == VOTE_SCOPE_GLOBAL then
+		return
+	end
+
+	local team = et.gentity_get(this.info.target, ENT_SESSION_TEAM)
+
+	if team == this.info.targetTeam then
+		return
+	end
+
+	this.info.targetTeam = team
+
+	if this.info.targetTeam == TEAM_SPECTATOR then
+		et.trap_SetConfigstring(CS_VOTE_TIME, tostring(this.info.time))
+	else
+
+		for i = 0, this.maxClients - 1 do
+
+			if et.gentity_get(i, ENT_SESSION_TEAM) == this.info.targetTeam then
+				et.trap_SendServerCommand(i, string.format(FORMAT_CS, CS_VOTE_TIME, this.info.time))
+			else
+				et.trap_SendServerCommand(i, string.format(FORMAT_CS, CS_VOTE_TIME, ""))
+			end
+
+		end
+
+	end
+
+end
+
+--- Updates config strings to individual clients.
+function this.updateClientCS()
+
+	if this.info.handler.vScope == VOTE_SCOPE_GLOBAL then
+		return
+	end
+
+	for i = 0, this.maxClients - 1 do
+
+		local team = et.gentity_get(i, ENT_SESSION_TEAM)
+
+		if team ~= this.teams[i] then
+
+			if this.info.handler.vScope == VOTE_SCOPE_GLOBAL or this.info.targetTeam == TEAM_SPECTATOR or team == this.info.targetTeam then
+				et.trap_SendServerCommand(i, string.format(FORMAT_CS, CS_VOTE_TIME, this.info.time))
+			else
+				et.trap_SendServerCommand(i, string.format(FORMAT_CS, CS_VOTE_TIME, ""))
+			end
+
+			this.teams[i] = team
+
+		end
+
 	end
 
 end
@@ -1028,7 +1093,7 @@ function this.executeCallback(name, execute, context)
 	if type(context.handler.vCallbacks[name]) == "function" then
 
 		-- we really need to set $callbackExecuting back.
-		local status, result = pcall(function()
+		local status, result, message = pcall(function()
 			return context.handler.vCallbacks[name](unpack(context.arguments))
 		end)
 
@@ -1038,7 +1103,7 @@ function this.executeCallback(name, execute, context)
 			error(result)
 		end
 
-		return result
+		return result, message
 
 	end
 
@@ -1221,6 +1286,8 @@ function et_RunFrame(levelTime)
 
 	if this.info.time and (this.time - this.info.time >= VOTE_TIME_MIN and math.mod(this.time, VOTE_TIME_MIN) == 0 or this.dirty) then
 		this.dirty = false
+		this.updateTarget()
+		this.updateClientCS()
 		this.checkVote()
 	end
 
