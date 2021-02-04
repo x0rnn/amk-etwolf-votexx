@@ -83,7 +83,7 @@ local this = {
 	info = {
 		time       = nil,
 		voteString = "",
-		voted      = {}, -- cno: bool
+		voted      = {}, -- cno: nil|bool
 		yes        = 0,
 		no         = 0,
 		caller     = nil,
@@ -690,7 +690,7 @@ function this.callvote(clientNum, command)
 
 	-- Zero all the answers.
 	for i = 0, this.maxClients - 1 do
-		this.info.voted[i] = false
+		this.info.voted[i] = nil
 	end
 
 	-- Except the caller.
@@ -959,7 +959,7 @@ function this.vote(clientNum, answer)
 	end
 
 	-- We could allow them for changing their opinion, for fun?
-	if this.info.voted[clientNum] then
+	if this.info.voted[clientNum] ~= nil then
 
 		-- Pass or cancel on referee double vote.
 		if et.gentity_get(clientNum, ENT_SESSION_REF) then
@@ -980,7 +980,7 @@ function this.vote(clientNum, answer)
 
 	-- Check result in the next frame.
 	this.dirty                 = true
-	this.info.voted[clientNum] = true
+	this.info.voted[clientNum] = answer
 
 	if answer then
 		this.info.yes = this.info.yes + 1
@@ -1017,6 +1017,10 @@ function this.checkVote()
 		percents = 99
 	end
 
+	-- We only count eligible voters (to prevent /callvote & /spec abuse).
+	local yes = 0
+	local no  = 0
+
 	for i = 0, this.maxClients - 1 do
 
 		local team = et.gentity_get(i, ENT_SESSION_TEAM)
@@ -1024,16 +1028,24 @@ function this.checkVote()
 		if team == TEAM_AXIS or team == TEAM_ALLIES then
 
 			if this.info.handler.vScope == VOTE_SCOPE_GLOBAL or team == this.info.targetTeam or this.info.targetTeam == TEAM_SPECTATOR then
+
 				voters = voters + 1
+
+				if this.info.voted[i] == true then
+					yes = yes + 1
+				elseif this.info.voted[i] == false then
+					no = no + 1
+				end
+
 			end
 
 		end
 
 	end
 
-	if this.info.yes > percents * voters / 100 then
+	if yes > percents * voters / 100 then
 		this.pass()
-	elseif this.info.no and this.info.no >= (100 - percents) * voters / 100 then
+	elseif no and no >= (100 - percents) * voters / 100 then
 		this.fail()
 	end
 
