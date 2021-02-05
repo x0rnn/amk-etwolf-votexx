@@ -21,9 +21,6 @@ local CMD_CANCELVOTE_XX = "cancelvote++"
 local CMD_PASSVOTE      = "passvote"
 local CMD_CANCELVOTE    = "cancelvote"
 
--- client command arguments
-local ARG_VOTE_YES = "yes"
-
 -- formatting
 local FORMAT_CP    = 'cp "%s"'
 local FORMAT_CPM   = 'cpm "%s"'
@@ -33,6 +30,7 @@ local FORMAT_CS    = 'cs %i "%s"\n'
 -- messages
 local MSG_CALLVOTE_IN_PROGRESS = "A vote is already in progress.\n"
 local MSG_VOTE_ALREADY_CAST    = "Vote already cast.\n"
+local MSG_VOTE_CAST            = "Vote cast.\n"
 local MSG_VOTE_SPECTATOR       = "Not allowed to vote as spectator.\n"
 local MSG_CALLED_VOTE_PRINT    = "[lof]%s^7 [lon]called a vote.[lof]  Voting for: %s\n"
 local MSG_CALLED_VOTE_CP       = "[lof]%s\n^7[lon]called a vote.\n"
@@ -408,8 +406,10 @@ function this.vote_f(clientNum)
 		return 0
 	end
 
-	-- Game considers anything but "yes" to be a "no".
-	this.vote(clientNum, et.trap_Argv(1) == ARG_VOTE_YES)
+	local arg = et.trap_Argv(1)
+
+	-- g_cmds.c: (msg[0] == 'y' || msg[1] == 'Y' || msg[1] == '1') // don't tell x0rnn :D
+	this.vote(clientNum, string.sub(arg, 1, 1) == "y" or string.sub(arg, 2, 2) == "Y" or string.sub(arg, 1, 1) == "1")
 	return 1
 
 end
@@ -989,6 +989,8 @@ function this.vote(clientNum, answer)
 		this.info.no = this.info.no + 1
 		et.trap_SetConfigstring(CS_VOTE_NO, tostring(this.info.no))
 	end
+
+	et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, MSG_VOTE_CAST))
 
 end
 
