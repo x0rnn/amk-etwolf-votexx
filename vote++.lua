@@ -409,7 +409,7 @@ function this.vote_f(clientNum)
 	local arg = et.trap_Argv(1)
 
 	-- g_cmds.c: (msg[0] == 'y' || msg[1] == 'Y' || msg[1] == '1') // don't tell x0rnn :D
-	this.vote(clientNum, string.sub(arg, 1, 1) == "y" or string.sub(arg, 2, 2) == "Y" or string.sub(arg, 1, 1) == "1")
+	this.vote(clientNum, string.sub(arg, 1, 1) == "y" or string.sub(arg, 2, 2) == "Y" or string.sub(arg, 2, 2) == "1")
 	return 1
 
 end
