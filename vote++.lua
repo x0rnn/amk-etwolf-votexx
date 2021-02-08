@@ -141,7 +141,6 @@ local this = {
 		{"timelimit",      "Changes the current timelimit",                            "vote_allow_timelimit"     },
 		{"unreferee",      "Elects a player to have admin abilities removed",          "vote_allow_referee"       },
 		{"warmupdamage",   "Specifies if players can inflict damage during warmup",    "vote_allow_warmupdamage"  },
-		{"antilag",        "Toggles Anit-Lag on the server",                           "vote_allow_antilag"       },
 		{"balancedteams",  "Toggles team balance forcing",                             "vote_allow_balancedteams" },
 		{"surrender",      "Forfeits the match in favor of the defending team",        "vote_allow_surrender"     },
 		{"cointoss",       "Flips a coin",                                             "vote_allow_cointoss"      },
