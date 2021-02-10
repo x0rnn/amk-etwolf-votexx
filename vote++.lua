@@ -962,7 +962,7 @@ function this.vote(clientNum, answer)
 	if this.info.voted[clientNum] ~= nil then
 
 		-- Pass or cancel on referee double vote.
-		if et.gentity_get(clientNum, ENT_SESSION_REF) then
+		if et.gentity_get(clientNum, ENT_SESSION_REF) > 0 then
 
 			if answer then
 				this.pass()
