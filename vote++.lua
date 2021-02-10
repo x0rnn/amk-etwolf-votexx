@@ -417,7 +417,7 @@ end
 --- Server console "passvote".
 function this.passvote_s()
 
-	if not this.callbackExecuting and this.info.time then
+	if this.callbackExecuting == 0 and this.info.time then
 		this.pass()
 	else
 		et.trap_SendConsoleCommand(et.EXEC_APPEND, string.format("%s\n", CMD_PASSVOTE))
@@ -430,7 +430,7 @@ end
 --- Server console "cancelvote".
 function this.cancelvote_s()
 
-	if not this.callbackExecuting and this.info.time then
+	if this.callbackExecuting == 0 and this.info.time then
 		this.cancel()
 	else
 		et.trap_SendConsoleCommand(et.EXEC_APPEND, string.format("%s\n", CMD_CANCELVOTE))
