@@ -68,6 +68,7 @@ local GS_PLAYING          = 0
 local GS_INTERMISSION     = 3
 local SIDE_ATTACKER       = 0
 local SIDE_DEFENDER       = 1
+local CALLBACK_TIMEOUT    = 5 -- frames
 local CONFIG_NAME         = "vote++.config.lua"
 
 -- vote types
@@ -106,8 +107,8 @@ local this = {
 	-- context, points to this.info or this.ref
 	context = nil,
 
-	-- do not trap server console commands if set
-	callbackExecuting = false,
+	-- number of frames during which "ref" commands will be ignored.
+	callbackExecuting = 0,
 
 	time       = 0,  -- level time
 	commands   = {}, -- vote handlers
@@ -442,7 +443,7 @@ end
 --- Server console "ref".
 function this.ref_s()
 
-	if this.callbackExecuting then
+	if this.callbackExecuting > 0 then
 		return 0
 	end
 
@@ -1163,7 +1164,7 @@ end
 function this.executeCallback(name, execute, context)
 
 	this.context           = context
-	this.callbackExecuting = true
+	this.callbackExecuting = CALLBACK_TIMEOUT
 
 	if type(context.handler.vCallbacks[name]) == "function" then
 
@@ -1171,8 +1172,6 @@ function this.executeCallback(name, execute, context)
 		local status, result, message = pcall(function()
 			return context.handler.vCallbacks[name](unpack(context.arguments))
 		end)
-
-		this.callbackExecuting = false
 
 		if not status then
 			error(result)
@@ -1194,15 +1193,12 @@ function this.executeCallback(name, execute, context)
 
 		if execute then
 			et.trap_SendConsoleCommand(et.EXEC_NOW, string.format("%s\n", s))
-			this.callbackExecuting = false
 			return nil
 		end
 
 		return s
 
 	end
-
-	this.callbackExecuting = false
 
 	return nil
 
@@ -1364,6 +1360,10 @@ function et_RunFrame(levelTime)
 		this.updateTarget()
 		this.updateClientCS()
 		this.checkVote()
+	end
+
+	if this.callbackExecuting > 0 then
+		this.callbackExecuting = this.callbackExecuting - 1
 	end
 
 	if this.callbacks.et_RunFrame ~= nil then
