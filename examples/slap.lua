@@ -1,0 +1,12 @@
+Vote:new("slap <player>")
+	:description("Slaps a player")
+	:vote("SLAP <player:%s>")
+	:pass(function(player)
+		local soundindex = et.G_SoundIndex( "/sound/player/land_hurt.wav" )
+		local o=et.gentity_get(player, "origin")
+		o[3] = o[3] + 50
+		et.gentity_set(player, "origin", o) 
+		et.G_Damage( player, 80, 1022, 0, 8, 32 )
+		et.G_Sound( player, soundindex )
+		et.trap_SendServerCommand(-1, "cpm \"^6Server^7: " .. et.gentity_get(player, "pers.netname") .. " has been slapped \"\n")
+	end)
