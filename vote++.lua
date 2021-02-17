@@ -740,7 +740,7 @@ function this.callvote(clientNum, command)
 	end
 
 	-- Now we need to call the vote callback.
-	local voteString, errorMessage = this.executeCallback("vote", false, this.info)
+	local voteString, errorMessage = this.executeCallback("vote", false, this.info, 0)
 	
 	if voteString == false then
 		
@@ -1162,10 +1162,14 @@ function this.assertType(name, value, expected)
 end
 
 --- Executes vote callback (pass, fail and vote).
-function this.executeCallback(name, execute, context)
+function this.executeCallback(name, execute, context, timeout)
+
+	if timeout == nil then
+		timeout = CALLBACK_TIMEOUT
+	end
 
 	this.context           = context
-	this.callbackExecuting = CALLBACK_TIMEOUT
+	this.callbackExecuting = timeout
 
 	if type(context.handler.vCallbacks[name]) == "function" then
 
