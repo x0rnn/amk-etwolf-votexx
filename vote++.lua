@@ -64,6 +64,9 @@ local ENT_SESSION_REF     = "sess.referee"
 local ENT_PERS_NETNAME    = "pers.netname"
 local ENT_PERS_VOTE_COUNT = "pers.voteCount"
 local ENT_INUSE           = "inuse"
+local ENT_PS_STATS        = "ps.stats"
+local PS_E_FLAGS_OFFSET   = -26
+local EF_VOTED             = 16384
 local GS_PLAYING          = 0
 local GS_INTERMISSION     = 3
 local SIDE_ATTACKER       = 0
@@ -116,6 +119,9 @@ local this = {
 	maxClients = nil,
 	teams      = {}, -- cno: number
 	betterHelp = true,
+
+	-- Boundary check NOP capability
+	hackedGEntity = nil,
 
 	-- ET callbacks
 	callbacks = {},
@@ -691,11 +697,11 @@ function this.callvote(clientNum, command)
 
 	-- Zero all the answers.
 	for i = 0, this.maxClients - 1 do
-		this.info.voted[i] = nil
+		this.setVotedFlag(i, nil)
 	end
 
 	-- Except the caller.
-	this.info.voted[clientNum] = true
+	this.setVotedFlag(clientNum, true)
 
 	-- Arguments.
 	if not this.loadArguments(clientNum, command, this.info) then
@@ -981,7 +987,7 @@ function this.vote(clientNum, answer)
 
 	-- Check result in the next frame.
 	this.dirty                 = true
-	this.info.voted[clientNum] = answer
+	this.setVotedFlag(clientNum, answer)
 
 	if answer then
 		this.info.yes = this.info.yes + 1
@@ -1339,6 +1345,67 @@ function this.configure()
 
 end
 
+--- Sets EF_VOTED flag.
+function this.setVotedFlag(clientNum, flag)
+
+	this.info.voted[clientNum] = flag
+
+	if not this.hackedGEntity then
+		return
+	end
+
+	if flag == nil then
+		flag = false
+	end
+
+	local current = et.gentity_get(clientNum, ENT_PS_STATS, PS_E_FLAGS_OFFSET)
+	local set     = false
+
+	-- Most of the time, the value is lower than EF_VOTED, so we can avoid the expensive &.
+	if current >= EF_VOTED and this.band(current, EF_VOTED) == EF_VOTED then
+		set = true
+	end
+
+	if flag == set then
+		return
+	end
+
+	if flag then
+		et.gentity_set(clientNum, ENT_PS_STATS, PS_E_FLAGS_OFFSET, current + EF_VOTED)
+	else
+		et.gentity_set(clientNum, ENT_PS_STATS, PS_E_FLAGS_OFFSET, current - EF_VOTED)
+	end
+
+end
+
+--- Bitwise AND (32-bit).
+function this.band(num, mask)
+
+	local res = 0
+	local len = 2147483648
+
+	while len >= 1 do
+
+		if num >= len and mask >= len then
+			res = res + len
+		end
+
+		if num >= len then
+			num = num - len
+		end
+
+		if mask >= len then
+			mask = mask - len
+		end
+
+		len = len / 2
+
+	end
+
+	return res
+
+end
+
 --
 -- ET.
 --
@@ -1351,6 +1418,15 @@ function et_InitGame(levelTime, randomSeed, restart)
 
 	if this.callbacks.et_InitGame ~= nil then
 		this.callbacks.et_InitGame(levelTime, randomSeed, restart)
+	end
+
+	-- Hacked gentity_* detection.
+	this.hackedGEntity = pcall(function()
+		et.gentity_get(0, ENT_PS_STATS, PS_E_FLAGS_OFFSET)
+	end)
+
+	if not this.hackedGEntity then
+		et.G_Print(MOD_NAME .. ": et.gentity_* not patched, client interface might be weird.\n")
 	end
 
 end

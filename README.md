@@ -8,6 +8,8 @@ This is a Lua module for Enemy Territory - Wolfenstein server introducing extend
 2. Create an empty `vote++.config.lua` file (that's where the configuration goes).
 3. Append `vote++.lua` to `lua_modules` cvar.
 
+> Client interface does not reflect the casted vote, or it can incorrectly render as already casted without that being actually the case. You can fix that in ETPro by switching to [patched qagame](https://klva.cz/s/qagame-gentity-hack.md). It is not mandatory, the votes are casted anyway; it's only the yellow popup that's wrong.
+
 ## Configuration
 
 All the configuration belongs to `vote++.config.lua`.
