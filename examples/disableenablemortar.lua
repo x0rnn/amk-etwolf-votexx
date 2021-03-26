@@ -4,6 +4,8 @@ function et_ClientSpawn(clientNum,revived)
 	if disablemortar == true then
 		if et.gentity_get(clientNum,"sess.latchPlayerType") == 0 then
 			if et.gentity_get(clientNum,"sess.latchPlayerWeapon") == 35 then
+				et.gentity_set(clientNum,"sess.latchPlayerType", 1)
+				et.gentity_set(clientNum, "ps.powerups", 1, 0)
 				et.G_Damage(clientNum, 80, 1022, 1000, 8, 34)
 			end
 		end
