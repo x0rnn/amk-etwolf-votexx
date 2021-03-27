@@ -978,6 +978,7 @@ function this.vote(clientNum, answer)
 			end
 
 		else
+			this.setVotedFlag(clientNum, this.info.voted[clientNum])
 			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, MSG_VOTE_ALREADY_CAST))
 		end
 
