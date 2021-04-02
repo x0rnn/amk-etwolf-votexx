@@ -43,31 +43,23 @@ Vote:new("shuffleteamsdamage_norestart")
 		if axisdmg >= alliesdmg then -- weaker_team == allies
 			for k,v in ipairs(weaker_team) do
 				if v[1][3] == 1 then
-					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putalliesf " .. v[1][1] .. "\n")
-				else
-					et.G_Damage(v[1][1], 80, 1022, 1000, 8, 34)
+					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putallies " .. v[1][1] .. "\n")
 				end
 			end
 			for k,v in ipairs(stronger_team) do
 				if v[1][3] == 2 then
-					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putaxisf " .. v[1][1] .. "\n")
-				else
-					et.G_Damage(v[1][1], 80, 1022, 1000, 8, 34)
+					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putaxis " .. v[1][1] .. "\n")
 				end
 			end
 		elseif alliesdmg > axisdmg then -- weaker_team == axis
 			for k,v in ipairs(weaker_team) do
 				if v[1][3] == 2 then
-					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putaxisf " .. v[1][1] .. "\n")
-				else
-					et.G_Damage(v[1][1], 80, 1022, 1000, 8, 34)
+					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putaxis " .. v[1][1] .. "\n")
 				end
 			end
 			for k,v in ipairs(stronger_team) do
 				if v[1][3] == 1 then
-					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putalliesf " .. v[1][1] .. "\n")
-				else
-					et.G_Damage(v[1][1], 80, 1022, 1000, 8, 34)
+					et.trap_SendConsoleCommand(et.EXEC_APPEND, "ref putallies " .. v[1][1] .. "\n")
 				end
 			end
 		end
