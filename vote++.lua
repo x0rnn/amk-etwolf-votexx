@@ -66,7 +66,7 @@ local ENT_PERS_VOTE_COUNT = "pers.voteCount"
 local ENT_INUSE           = "inuse"
 local ENT_PS_STATS        = "ps.stats"
 local PS_E_FLAGS_OFFSET   = -26
-local EF_VOTED             = 16384
+local EF_VOTED            = 16384
 local GS_PLAYING          = 0
 local GS_INTERMISSION     = 3
 local SIDE_ATTACKER       = 0
@@ -371,8 +371,8 @@ function this.vote_f(clientNum)
 		return 1 -- Game would say there's no vote in progress.
 	end
 
-	-- Team specific.
-	if this.info.handler.vScope == VOTE_SCOPE_TEAM and team ~= this.info.targetTeam then
+	-- Team specific, but allow the vote if the target is spectator.
+	if this.info.handler.vScope == VOTE_SCOPE_TEAM and team ~= this.info.targetTeam and this.info.targetTeam ~= TEAM_SPECTATOR then
 		return 0
 	end
 
