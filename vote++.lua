@@ -1430,6 +1430,9 @@ function et_InitGame(levelTime, randomSeed, restart)
 		et.G_Print(MOD_NAME .. ": et.gentity_* not patched, client interface might be weird.\n")
 	end
 
+	-- This doesn't get cleared when warmup elapses.
+	et.trap_SetConfigstring(CS_VOTE_TIME, "")
+
 end
 
 --- Handles timing.
