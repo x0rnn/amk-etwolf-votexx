@@ -155,6 +155,9 @@ local this = {
 		{"config",                   "Loads an ETPro configuration",                                            "vote_alow_config"         },
 	},
 
+	-- Callbacks to be executed on the next server frame.
+	futures = {},
+
 }
 
 --
@@ -697,11 +700,11 @@ function this.callvote(clientNum, command)
 
 	-- Zero all the answers.
 	for i = 0, this.maxClients - 1 do
-		this.setVotedFlag(i, nil)
+		this.setVoted(i, nil, false)
 	end
 
 	-- Except the caller.
-	this.setVotedFlag(clientNum, true)
+	this.setVoted(clientNum, true, false)
 
 	-- Arguments.
 	if not this.loadArguments(clientNum, command, this.info) then
@@ -978,7 +981,7 @@ function this.vote(clientNum, answer)
 			end
 
 		else
-			this.setVotedFlag(clientNum, this.info.voted[clientNum])
+			this.setVoted(clientNum, this.info.voted[clientNum], true)
 			et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, MSG_VOTE_ALREADY_CAST))
 		end
 
@@ -988,7 +991,7 @@ function this.vote(clientNum, answer)
 
 	-- Check result in the next frame.
 	this.dirty                 = true
-	this.setVotedFlag(clientNum, answer)
+	this.setVoted(clientNum, answer, false)
 
 	if answer then
 		this.info.yes = this.info.yes + 1
@@ -1347,7 +1350,7 @@ function this.configure()
 end
 
 --- Sets EF_VOTED flag.
-function this.setVotedFlag(clientNum, flag)
+function this.setVoted(clientNum, flag, retry)
 
 	this.info.voted[clientNum] = flag
 
@@ -1368,7 +1371,25 @@ function this.setVotedFlag(clientNum, flag)
 	end
 
 	if flag == set then
+	
+		if retry then
+
+			-- Unset the EF_VOTED in the next frame to enforce synchronization...
+			this.future(function(time)
+
+				et.gentity_set(clientNum, ENT_PS_STATS, PS_E_FLAGS_OFFSET, current - EF_VOTED)
+
+				-- ...and set it back in the frame after that.
+				this.future(function(time)
+					et.gentity_set(clientNum, ENT_PS_STATS, PS_E_FLAGS_OFFSET, current)
+				end)
+
+			end)
+
+		end
+
 		return
+	
 	end
 
 	if flag then
@@ -1407,6 +1428,11 @@ function this.band(num, mask)
 
 end
 
+--- Schedules a callback for the next frame.
+function this.future(callback)
+	table.insert(this.futures, callback)
+end
+
 --
 -- ET.
 --
@@ -1439,6 +1465,12 @@ end
 function et_RunFrame(levelTime)
 
 	this.time = levelTime
+
+	if table.getn(this.futures) > 0 then
+		local futures = this.futures
+		this.futures = {}
+		table.foreach(futures, function(_, callback) callback(levelTime) end)
+	end
 
 	if this.info.time and (this.time - this.info.time >= VOTE_TIME_MIN and math.mod(this.time, VOTE_TIME_MIN) == 0 or this.dirty) then
 		this.dirty = false
