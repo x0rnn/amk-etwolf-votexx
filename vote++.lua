@@ -726,20 +726,26 @@ function this.callvote(clientNum, command)
 	-- Side specific vote.
 	if command.vSide ~= nil then
 
-		local defender = tonumber(et.Info_ValueForKey(et.trap_GetConfigstring(CS_MULTI_INFO), "defender")) + 1
+		local defender = tonumber(et.Info_ValueForKey(et.trap_GetConfigstring(CS_MULTI_INFO), "defender"))
 
-		if not (command.vSide == SIDE_DEFENDER and this.info.callerTeam == defender or command.vSide == SIDE_ATTACKER and this.info.callerTeam ~= defender) then
+		if defender ~= nil then
+			
+			defender = defender + 1
 
-			local side
+			if not (command.vSide == SIDE_DEFENDER and this.info.callerTeam == defender or command.vSide == SIDE_ATTACKER and this.info.callerTeam ~= defender) then
 
-			if command.vSide == SIDE_ATTACKER then
-				side = "attacking"
-			else
-				side = "defending"
+				local side
+
+				if command.vSide == SIDE_ATTACKER then
+					side = "attacking"
+				else
+					side = "defending"
+				end
+
+				this.error(clientNum, string.format(MSG_SIDE_TEAM, command.id, side))
+				return
+
 			end
-
-			this.error(clientNum, string.format(MSG_SIDE_TEAM, command.id, side))
-			return
 
 		end
 
