@@ -2,15 +2,32 @@
 
 block_class = {}
 soundindex = ""
+crestrict = {}
 crestrict_id = {}
 cflag = false
+
+function et_InitGame(levelTime, randomSeed, restart)
+	for i=0,tonumber(et.trap_Cvar_Get("sv_maxclients"))-1 do
+		crestrict[i] = nil
+	end
+end
 
 function et_ClientBegin(clientNum)
 	block_class[clientNum] = { [1]=false, [2]=3, [3]=3 }
 end
 
 function et_ClientDisconnect(clientNum)
-	table.remove(crestrict_id, clientNum)
+	if crestrict[clientNum] == true then
+		crestrict[clientNum] = nil
+		local index={}
+		for k,v in pairs(crestrict_id) do
+			index[v]=k
+		end
+		table.remove(crestrict_id, index[clientNum])
+		if next(crestrict) == nil then
+			cflag = false
+		end
+	end
 end
 
 function et_ConsoleCommand()
@@ -79,6 +96,7 @@ Vote:new("putmedic <player>")
 		return string.format("PUTMEDIC %s ^7from %s", et.gentity_get(player, "pers.netname"), classname)
 	end)
 	:pass(function(player)
+		crestrict[player] = true
 		table.insert(crestrict_id, player)
 		block_class[player][1] = true
 		block_class[player][2] = 0 -- 0 = soldier, 1 = medic, 2 = engineer, 3 = fieldops, 4 = covertops
