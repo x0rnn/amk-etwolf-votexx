@@ -15,6 +15,9 @@ end
 Vote:new("disablemortar")
 	:description("Disable mortar")
 	:vote(function()
+		if tonumber(et.trap_Cvar_Get("team_maxMortars")) > 0 and disablemortar == true then
+			disablemortar = false
+		end
 		if disablemortar == true then
 			return false, "Mortar is already disabled."
 		end
@@ -39,14 +42,13 @@ Vote:new("disablemortar")
 	:pass(function()
 		disablemortar = true
 		et.trap_Cvar_Set("team_maxMortars", 0)
-		et.trap_Cvar_Set("vote_disablemortar", 1)
 	end)
 	:percent(70)
 
 Vote:new("enablemortar")
 	:description("Enable mortar")
 	:vote(function()
-		if tonumber(et.trap_Cvar_Get("vote_disablemortar")) == 1 and disablemortar == false then
+		if tonumber(et.trap_Cvar_Get("team_maxMortars")) == 0 and disablemortar == false then
 			disablemortar = true
 		end
 		if disablemortar == false then
