@@ -15,8 +15,15 @@ end
 Vote:new("disablemortar")
 	:description("Disable mortar")
 	:vote(function()
+		if tonumber(et.trap_Cvar_Get("vote_disablemortar")) == 1 and disablemortar == false then
+			disablemortar = true
+		end
 		if disablemortar == true then
 			return false, "Mortar is already disabled."
+		end
+		local gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
+		if gamestate ~= 0 then
+			return false, "You can only vote this during the game."
 		end
 		
 		local playerCount = 0
@@ -26,8 +33,8 @@ Vote:new("disablemortar")
 				playerCount = playerCount + 1
 			end
 		end
-		if playerCount < 24 then
-			return false, "This vote requires 24 players or more to cast."
+		if playerCount < 20 then
+			return false, "This vote requires 20 players or more to cast."
 		end
 
 		return string.format("Disable mortar?")
@@ -35,8 +42,9 @@ Vote:new("disablemortar")
 	:pass(function()
 		disablemortar = true
 		et.trap_Cvar_Set("team_maxMortars", 0)
+		et.trap_Cvar_Set("vote_disablemortar", 1)
 	end)
-	:percent(85)
+	:percent(70)
 
 Vote:new("enablemortar")
 	:description("Enable mortar")
@@ -57,5 +65,6 @@ Vote:new("enablemortar")
 		end
 		if playerCount >= 16 then
 			et.trap_Cvar_Set("team_maxMortars", 1)
+			et.trap_Cvar_Set("vote_disablemortar", 0)
 		end
 	end)
