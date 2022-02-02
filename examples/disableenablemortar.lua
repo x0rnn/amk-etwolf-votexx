@@ -15,9 +15,6 @@ end
 Vote:new("disablemortar")
 	:description("Disable mortar")
 	:vote(function()
-		if tonumber(et.trap_Cvar_Get("vote_disablemortar")) == 1 and disablemortar == false then
-			disablemortar = true
-		end
 		if disablemortar == true then
 			return false, "Mortar is already disabled."
 		end
@@ -49,6 +46,9 @@ Vote:new("disablemortar")
 Vote:new("enablemortar")
 	:description("Enable mortar")
 	:vote(function()
+		if tonumber(et.trap_Cvar_Get("vote_disablemortar")) == 1 and disablemortar == false then
+			disablemortar = true
+		end
 		if disablemortar == false then
 			return false, "Mortar is already enabled."
 		end
