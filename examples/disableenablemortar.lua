@@ -67,6 +67,5 @@ Vote:new("enablemortar")
 		end
 		if playerCount >= 16 then
 			et.trap_Cvar_Set("team_maxMortars", 1)
-			et.trap_Cvar_Set("vote_disablemortar", 0)
 		end
 	end)
