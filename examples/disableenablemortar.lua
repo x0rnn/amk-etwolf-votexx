@@ -55,6 +55,17 @@ Vote:new("enablemortar")
 			return false, "Mortar is already enabled."
 		end
 
+		local playerCount = 0
+		for j=0, tonumber(et.trap_Cvar_Get("sv_maxclients"))-1 do
+			local team = tonumber(et.gentity_get(j, "sess.sessionTeam"))
+			if team == 1 or team == 2 then
+				playerCount = playerCount + 1
+			end
+		end
+		if playerCount < 16 then
+			return false, "This vote requires 16 players or more to cast."
+		end
+
 		return string.format("Enable mortar?")
 	end)
 	:pass(function()
@@ -69,3 +80,4 @@ Vote:new("enablemortar")
 			et.trap_Cvar_Set("team_maxMortars", 1)
 		end
 	end)
+
