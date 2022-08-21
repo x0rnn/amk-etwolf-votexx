@@ -42,6 +42,21 @@ Vote:new("disablemortar")
 	:pass(function()
 		disablemortar = true
 		et.trap_Cvar_Set("team_maxMortars", 0)
+		for j=0, tonumber(et.trap_Cvar_Get("sv_maxclients"))-1 do
+			local team = tonumber(et.gentity_get(j, "sess.sessionTeam"))
+			if team == 1 or team == 2 then
+				if et.gentity_get(j,"sess.PlayerType") == 0 then
+					if et.gentity_get(j, "sess.latchPlayerWeapon") == 35 or et.gentity_get(j, "sess.latchPlayerWeapon") == 45 then
+						et.gentity_set(j,"sess.latchPlayerType", 1)
+						local health = tonumber(et.gentity_get(j, "health"))
+						if health > 0 then
+							et.gentity_set(j, "ps.powerups", 1, 0)
+							et.G_Damage(j, 80, 1022, 1000, 8, 34)
+						end
+					end
+				end
+			end
+		end
 	end)
 	:percent(70)
 
