@@ -4,15 +4,15 @@ This is a Lua module for Enemy Territory - Wolfenstein server introducing extend
 
 ## Usage
 
-1. Put `vote++.lua` in `etpro` folder.
-2. Create an empty `vote++.config.lua` file (that's where the configuration goes).
+1. Put `vote++.lua` in `legacy` folder.
+2. Create an empty `vote++.config.lua` file or put individual files in `legacy/vote++` folder,
 3. Append `vote++.lua` to `lua_modules` cvar.
 
 > Client interface does not reflect the casted vote, or it can incorrectly render as already casted without that being actually the case. You can fix that in ETPro by switching to [patched qagame](https://klva.cz/s/qagame-gentity-hack.md). It is not mandatory, the votes are casted anyway; it's only the yellow popup that's wrong.
 
 ## Configuration
 
-All the configuration belongs to `vote++.config.lua`.
+All the configuration belongs to `vote++.config.lua` or `legacy/vote++` folder.
 
 Apart from defining commands, you can define any ET callback (like `et_RunFrame`) and use any API (`et.*` and stdlib).
 
@@ -77,7 +77,3 @@ V.disable("*") -- disables all commands
 V.disable("warmupdamage")
 V.enable("kick")
 ~~~
-
-### ETAdmin integration
-
-ETAdmin can, under certain conditions, automatically cancel or pass votes. It does so by executing `cancelvote` or `passvote` to server console. ETPro doesn't propagate this command to Lua modules, so you need to change it to `cancelvote++` and `passvote++`. Native functionality is preserved.

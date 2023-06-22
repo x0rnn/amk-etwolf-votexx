@@ -9,7 +9,7 @@ stuck_time = 0
 intervals = {[1]=0, [2]=0}
 
 function et_RunFrame(levelTime)
-	if math.mod(levelTime, 1000) ~= 0 then return end
+	if levelTime % 1000 ~= 0 then return end
 
 	local gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
 	if gamestate == 0 then

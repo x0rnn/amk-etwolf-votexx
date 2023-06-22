@@ -31,7 +31,7 @@ Vote:new("shuffleteamsdamage_norestart")
 		local sti = 1
 	
 		for k, v, t in ipairs(damages) do
-			if k >= 1 and math.mod(k - 1, 2) == 0 then 
+			if k >= 1 and ((k - 1) % 2) == 0 then
 				weaker_team[wti] = {v, t}
 				wti = wti + 1
 			else
