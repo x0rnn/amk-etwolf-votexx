@@ -45,7 +45,7 @@ function et_ConsoleCommand()
 end
 
 function et_RunFrame(levelTime)
-	if math.mod(levelTime, 1000) ~= 0 then return end
+	if levelTime % 1000 ~= 0 then return end
 	gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
 	if gamestate == 0 then
 		if cflag == true then

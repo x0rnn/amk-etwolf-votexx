@@ -52,7 +52,7 @@ pistolwar = {
 }
 
 function et_RunFrame(levelTime)
-	if math.mod(levelTime, 1000) ~= 0 then return end
+	if levelTime % 1000 ~= 0 then return end
 
 	if pistolwar_flag == true then
 		local gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
