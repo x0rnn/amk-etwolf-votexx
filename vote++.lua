@@ -570,3 +570,27 @@ function et_RunFrame(levelTime)
 	end
 
 end
+
+--- Console command handler.
+function et_ConsoleCommand()
+
+	local res = this.executeETCallbacks("et_ConsoleCommand")
+
+	if res then
+		return res
+	end
+
+	local cmd = string.lower(et.trap_Argv(0))
+
+	-- Patched ETAdmin fallback.
+	if cmd == "passvote++" then
+		et.trap_SendConsoleCommand(et.EXEC_APPEND, "passvote")
+	elseif cmd == "cancelvote++" then
+		et.trap_SendConsoleCommand(et.EXEC_APPEND, "cancelvote")
+	else
+		return 0
+	end
+
+	return 1
+
+end
