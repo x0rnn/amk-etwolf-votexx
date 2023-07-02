@@ -3,7 +3,7 @@ disablemortar = false
 function et_ClientSpawn(clientNum,revived)
 	if disablemortar == true then
 		if et.gentity_get(clientNum,"sess.latchPlayerType") == 0 then
-			if et.gentity_get(clientNum,"sess.latchPlayerWeapon") == 35 then
+			if et.gentity_get(clientNum,"sess.latchPlayerWeapon") == 35 or et.gentity_get(clientNum,"sess.latchPlayerWeapon") == 51 then
 				et.gentity_set(clientNum,"sess.latchPlayerType", 1)
 				et.gentity_set(clientNum, "ps.powerups", 1, 0)
 				et.G_Damage(clientNum, 80, 1022, 1000, 8, 34)
@@ -33,8 +33,8 @@ Vote:new("disablemortar")
 				playerCount = playerCount + 1
 			end
 		end
-		if playerCount < 20 then
-			return false, "This vote requires 20 players or more to cast."
+		if playerCount <= 16 then
+			return false, "This vote requires 16 players or more to cast."
 		end
 
 		return string.format("Disable mortar?")
@@ -46,7 +46,7 @@ Vote:new("disablemortar")
 			local team = tonumber(et.gentity_get(j, "sess.sessionTeam"))
 			if team == 1 or team == 2 then
 				if et.gentity_get(j,"sess.PlayerType") == 0 then
-					if et.gentity_get(j, "sess.latchPlayerWeapon") == 35 or et.gentity_get(j, "sess.latchPlayerWeapon") == 45 then
+					if et.gentity_get(j, "sess.latchPlayerWeapon") == 35 or et.gentity_get(j, "sess.latchPlayerWeapon") == 45 or et.gentity_get(j, "sess.latchPlayerWeapon") == 51 or et.gentity_get(j, "sess.latchPlayerWeapon") == 52 then
 						et.gentity_set(j,"sess.latchPlayerType", 1)
 						local health = tonumber(et.gentity_get(j, "health"))
 						if health > 0 then
