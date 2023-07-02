@@ -3,8 +3,8 @@ disablesmoke = false
 function et_ClientSpawn(clientNum,revived)
 	if disablesmoke == true then
 		if et.gentity_get(clientNum,"sess.latchPlayerType") == 4 then
-			et.gentity_set(clientNum,"ps.ammoclip",29,0)
-			et.gentity_set(clientNum,"ps.ammo",29,0)
+			et.gentity_set(clientNum,"ps.ammoclip",30,0)
+			et.gentity_set(clientNum,"ps.ammo",30,0)
 		end
 	end
 end
