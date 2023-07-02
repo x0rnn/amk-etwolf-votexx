@@ -30,20 +30,6 @@ function et_ClientDisconnect(clientNum)
 	end
 end
 
-function et_ConsoleCommand()
-	if et.trap_Argv(0) == "pb_sv_kick" then
-		if et.trap_Argc() >= 2 then
-			local cno = tonumber(et.trap_Argv(1))
-			if cno then
-				cno = cno - 1
-				et_ClientDisconnect(cno)
-			end
-		end
-		return 1
-	end
-    return(0)
-end
-
 function et_RunFrame(levelTime)
 	if levelTime % 1000 ~= 0 then return end
 	gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
@@ -61,7 +47,7 @@ function et_RunFrame(levelTime)
 						if health > 0 then
 							et.gentity_set(crestrict_id[x], "ps.powerups", 1, 0)
 							et.G_Damage(crestrict_id[x], 80, 1022, 1000, 8, 34)
-							et.G_Sound(crestrict_id[x], et.G_SoundIndex("/sound/etpro/osp_goat.wav"))
+							et.G_Sound(crestrict_id[x], et.G_SoundIndex("/sound/osp/goat.wav"))
 						end
 					end
 				end
