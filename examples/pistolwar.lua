@@ -1,54 +1,61 @@
 et.MAX_WEAPONS = 50
 pistolwar_flag = false
 pistolwar = {
-	nil,	--// 1
-	true,	--WP_LUGER,				// 2
-	false,	--WP_MP40,				// 3
-	true,	--WP_GRENADE_LAUNCHER,	// 4
-	false,	--WP_PANZERFAUST,		// 5
-	false,	--WP_FLAMETHROWER,		// 6
-	true,	--WP_COLT,				// 7	// equivalent american weapon to german luger
-	false,	--WP_THOMPSON,			// 8	// equivalent american weapon to german mp40
-	true,	--WP_GRENADE_PINEAPPLE,	// 9
-	false,	--WP_STEN,				// 10	// silenced sten sub-machinegun
-	true,	--WP_MEDIC_SYRINGE,		// 11	// JPW NERVE -- broken out from CLASS_SPECIAL per Id request
-	true, 	--WP_AMMO,				// 12	// JPW NERVE likewise
-	false,	--WP_ARTY,				// 13
-	true,	--WP_SILENCER,			// 14	// used to be sp5
-	true,	--WP_DYNAMITE,			// 15
-	nil,	--// 16
-	nil,	--// 17
-	nil,		--// 18
-	true,	--WP_MEDKIT,			// 19
-	true,	--WP_BINOCULARS,		// 20
-	nil,	--// 21
-	nil,	--// 22
-	false,	--WP_KAR98,				// 23	// WolfXP weapons
-	false,	--WP_CARBINE,			// 24
-	false,	--WP_GARAND,			// 25
-	true,	--WP_LANDMINE,			// 26
-	true,	--WP_SATCHEL,			// 27
-	true,	--WP_SATCHEL_DET,		// 28
-	nil,	--// 29
-	true,	--WP_SMOKE_BOMB,		// 30
-	false,	--WP_MOBILE_MG42,		// 31
-	false,	--WP_K43,				// 32
-	false,	--WP_FG42,				// 33
-	nil,	--// 34
-	false,	--WP_MORTAR,			// 35
-	nil,	--// 36
-	false,	--WP_AKIMBO_COLT,		// 37
-	false,	--WP_AKIMBO_LUGER,		// 38
-	nil,	--// 39					axis riflegrenade
-	nil,	--// 40					allies riflegrenade
-	true,	--WP_SILENCED_COLT,		// 41
-	false,	--WP_GARAND_SCOPE,		// 42
-	false,	--WP_K43_SCOPE,			// 43
-	false,	--WP_FG42SCOPE,			// 44
-	false,	--WP_MORTAR_SET,		// 45
-	false,	--WP_MEDIC_ADRENALINE,	// 46
-	false,	--WP_AKIMBO_SILENCEDCOLT,// 47
-	false	--WP_AKIMBO_SILENCEDLUGER,// 48
+	nil,	--WP_KNIFE,                  ///< 1
+	true,	--WP_LUGER,                  ///< 2
+	false,	--WP_MP40,                   ///< 3
+	true,	--WP_GRENADE_LAUNCHER,       ///< 4	axis grenade
+	false,	--WP_PANZERFAUST,            ///< 5
+	false,	--WP_FLAMETHROWER,           ///< 6
+	true,	--WP_COLT,                   ///< 7	equivalent american weapon to german luger
+	false,	--WP_THOMPSON,               ///< 8	equivalent american weapon to german mp40
+	true,	--WP_GRENADE_PINEAPPLE,      ///< 9	allied grenade
+	false,	--WP_STEN,                   ///< 10	silenced sten sub-machinegun
+	true,	--WP_MEDIC_SYRINGE,          ///< 11	broken out from CLASS_SPECIAL per Id request
+	true,	--WP_AMMO,                   ///< 12	likewise
+	false,	--WP_ARTY,                   ///< 13
+	true,	--WP_SILENCER,               ///< 14	silenced luger (used to be sp5)
+	true,	--WP_DYNAMITE,               ///< 15
+	nil,	--WP_SMOKETRAIL,             ///< 16
+	nil,	--WP_MAPMORTAR,              ///< 17
+	nil,	--VERYBIGEXPLOSION,          ///< 18	explosion effect for airplanes
+	true,	--WP_MEDKIT,                 ///< 19
+	true,	--WP_BINOCULARS,             ///< 20
+	nil,	--WP_PLIERS,                 ///< 21
+	nil,	--WP_SMOKE_MARKER,           ///< 22	changed name to cause less confusion
+	false,	--WP_KAR98,                  ///< 23	axis rifle
+	false,	--WP_CARBINE,                ///< 24	allied rifle
+	false,	--WP_GARAND,                 ///< 25
+	true,	--WP_LANDMINE,               ///< 26
+	true,	--WP_SATCHEL,                ///< 27
+	true,	--WP_SATCHEL_DET,            ///< 28
+	nil,	--WP_SMOKE_BOMB,             ///< 29
+	false,	--WP_MOBILE_MG42,            ///< 30
+	false,	--WP_K43,                    ///< 31
+	false,	--WP_FG42,                   ///< 32
+	false,	--WP_DUMMY_MG42,             ///< 33 for storing heat on mounted mg42s...
+	false,	--WP_MORTAR,                 ///< 34
+	false,	--WP_AKIMBO_COLT,            ///< 35
+	false,	--WP_AKIMBO_LUGER,           ///< 36
+	false,	--WP_GPG40,                  ///< 37	axis riflegrenade
+	false,	--WP_M7,                     ///< 38	allies riflegrenade
+	true,	--WP_SILENCED_COLT,          ///< 39
+	false,	--WP_GARAND_SCOPE,           ///< 40
+	false,	--WP_K43_SCOPE,              ///< 41
+	false,	--WP_FG42_SCOPE,             ///< 42
+	false,	--WP_MORTAR_SET,             ///< 43
+	false,	--WP_MEDIC_ADRENALINE,       ///< 44
+	false,	--WP_AKIMBO_SILENCEDCOLT,    ///< 45
+	false,	--WP_AKIMBO_SILENCEDLUGER,   ///< 46
+	false,	--WP_MOBILE_MG42_SET,        ///< 47
+	false,	--WP_KNIFE_KABAR,            ///< 48	allied knife
+	false,	--WP_MOBILE_BROWNING,        ///< 49	allied machinegun
+	false,	--WP_MOBILE_BROWNING_SET,    ///< 50
+	false,	--WP_MORTAR2,                ///< 51	allied mortar
+	false,	--WP_MORTAR2_SET,            ///< 52
+	false,	--WP_BAZOOKA,                ///< 53	allied panzerfaust
+	false,	--WP_MP34,                   ///< 54	axis sten alternative
+	false	--WP_AIRSTRIKE,              ///< 55
 }
 
 function et_RunFrame(levelTime)
