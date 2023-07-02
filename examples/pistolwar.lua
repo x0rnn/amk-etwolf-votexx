@@ -1,4 +1,4 @@
-et.MAX_WEAPONS = 50
+et.MAX_WEAPONS = 55
 pistolwar_flag = false
 pistolwar = {
 	nil,	--WP_KNIFE,                  ///< 1
