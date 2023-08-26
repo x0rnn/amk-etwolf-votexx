@@ -10,6 +10,7 @@ local FORMAT_PRINT            = 'print "%s"'
 local FORMAT_CS               = 'cs %i "%s"\n'
 local MSG_VOTE_DISABLED       = "Sorry, [lof]^3%s^7 [lon]voting has been disabled\n"
 local MSG_ADDITIONAL_VOTE     = "\nAdditional ^3callvote^7 commands are:\n^3----------------------------\n"
+local MSG_OPPOSING_TEAM_VOTE  = "This vote cannot be called on players on opposing team.\n"
 local MSG_SIDE_TEAM           = "Sorry, ^3%s ^7voting is only possible for %s team.\n"
 local MSG_INVALID_SLOT_NUMBER = "Invalid slot number.\n"
 local TEAM_AXIS               = 1
@@ -415,7 +416,7 @@ function et_VoteCall(clientNum, vote, arg)
 
 		local side
 
-		if command.vSide == SIDE_ATTACKER then
+		if this.commands[vote].vSide == SIDE_ATTACKER then
 			side = "attacking"
 		else
 			side = "defending"
@@ -450,13 +451,19 @@ function et_VoteCall(clientNum, vote, arg)
 			-- First <player> is our target.
 			if this.context.target == nil and value ~= nil then
 				this.context.target     = value
-				this.context.targetTeam = clientTeam
+				this.context.targetTeam = et.gentity_get(value, ENT_SESSION_TEAM)
 			end
 
 		end
 
 		table.insert(this.context.arguments, value)
 
+	end
+
+	-- Validate target team.
+	if this.commands[vote].vScope == VOTE_SCOPE_TEAM and this.context.targetTeam ~= nil and this.context.targetTeam ~= TEAM_SPECTATOR and this.context.targetTeam ~= clientTeam then
+		et.trap_SendServerCommand(clientNum, string.format(FORMAT_PRINT, MSG_OPPOSING_TEAM_VOTE))
+		return false
 	end
 
 	this.context.vote = this.commands[vote]
